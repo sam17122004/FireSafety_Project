@@ -1,4 +1,4 @@
-# 🔥 Fire Safety Dashboard (AIIMS Project)
+# 🔥 Fire Safety Dashboard 
 
 This project integrates **real-time Fire Detection (OpenCV)** with an **IoT Sensor Simulator** and a **Flask Web Dashboard**.
 
