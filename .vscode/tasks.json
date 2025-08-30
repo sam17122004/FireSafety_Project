@@ -1,0 +1,51 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Flask Dashboard",
+      "type": "process",
+      "command": "python",
+      "args": ["dashboard/app.py"],
+      "group": "none",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Run Fire Detection (OpenCV)",
+      "type": "process",
+      "command": "python",
+      "args": ["fire_detection/detect_fire.py"],
+      "group": "none",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Run IoT Sensor Simulation",
+      "type": "process",
+      "command": "python",
+      "args": ["iot/sensor_sim.py"],
+      "group": "none",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Run All (Dashboard + Fire + Sensors)",
+      "dependsOn": [
+        "Run Flask Dashboard",
+        "Run Fire Detection (OpenCV)",
+        "Run IoT Sensor Simulation"
+      ],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    }
+  ]
+}

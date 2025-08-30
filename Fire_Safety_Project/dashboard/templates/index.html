@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Fire Safety Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; padding:0; }
+    .container { display: flex; height: 100vh; }
+    .video { flex: 2; background: black; }
+    .video img { width: 100%; height: 100%; object-fit: cover; }
+    .charts { flex: 1; padding: 20px; display: flex; flex-direction: column; }
+    canvas { flex: 1; margin-bottom: 20px; }
+    #status { font-size: 22px; font-weight: bold; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="video">
+      <img src="{{ url_for('video_feed') }}" />
+    </div>
+    <div class="charts">
+      <canvas id="sensorChart"></canvas>
+      <div id="status">Loading...</div>
+    </div>
+  </div>
+
+<script>
+let ctx = document.getElementById('sensorChart').getContext('2d');
+let chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [
+      { label: 'Temperature (°C)', borderColor:'orange', data: [], fill:false },
+      { label: 'Smoke (ppm)', borderColor:'gray', data: [], fill:false },
+      { label: 'Gas MQ2', borderColor:'blue', data: [], fill:false }
+    ]
+  },
+  options: {
+    scales: {
+      y: {
+        min: 0,
+        max: 1200,
+        ticks: { stepSize: 100 },
+        grid: { drawTicks:true }
+      }
+    },
+    plugins: {
+      annotation: {
+        annotations: {
+          tempDanger: { type:'line', yMin:60, yMax:60, borderColor:'red', borderWidth:2 },
+          smokeDanger: { type:'line', yMin:400, yMax:400, borderColor:'red', borderWidth:2 },
+          gasDanger: { type:'line', yMin:700, yMax:700, borderColor:'red', borderWidth:2 }
+        }
+      }
+    }
+  }
+});
+
+function updateData(){
+  fetch('/sensors').then(r=>r.json()).then(data=>{
+    let now = new Date().toLocaleTimeString();
+    chart.data.labels.push(now);
+    chart.data.datasets[0].data.push(data.temperature_c);
+    chart.data.datasets[1].data.push(data.smoke_ppm);
+    chart.data.datasets[2].data.push(data.gas_mq2);
+    if(chart.data.labels.length>20){
+      chart.data.labels.shift();
+      chart.data.datasets.forEach(ds=>ds.data.shift());
+    }
+    chart.update();
+  });
+  fetch('/status').then(r=>r.json()).then(data=>{
+    document.getElementById('status').innerHTML = 
+      data.detected ? "🔥 FIRE DETECTED 🔥" : "✅ Safe";
+    document.getElementById('status').style.color = 
+      data.detected ? "red" : "green";
+  });
+}
+setInterval(updateData, 2000);
+</script>
+</body>
+</html>
